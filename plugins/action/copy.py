@@ -289,12 +289,26 @@ class ActionModule(ActionBase):
             # remote_file exists so continue to next iteration.
             return None
 
-        result["diff"].append(
-            {
-                "before": {"path": dest_status["path"], "mode": dest_status["mode"]},
-                "after": {"path": dest_status["path"], "mode": self._task.args["mode"]},
-            }
-        )
+        attributes_diff = {
+            "before": {"path": dest_status["path"]},
+            "after": {"path": dest_status["path"]},
+        }
+        if not dest_status["exists"]:
+            dest_status["mode"] = None
+            dest_status["pw_name"] = None
+            dest_status["gr_name"] = None
+            # dest_status["checksum"] = 1
+            # _execute_remote_stat sets checksum equal to 1 when path does not exist
+        if "mode" in self._task.args:
+            attributes_diff["before"]["mode"] = dest_status["mode"]
+            attributes_diff["after"]["mode"] = self._task.args["mode"]
+        if "owner" in self._task.args:
+            attributes_diff["before"]["owner"] = dest_status["pw_name"]
+            attributes_diff["after"]["owner"] = self._task.args["owner"]
+        if "group" in self._task.args:
+            attributes_diff["before"]["group"] = dest_status["gr_name"]
+            attributes_diff["after"]["group"] = self._task.args["group"]
+        result["diff"].append(attributes_diff)
 
         # Generate a hash of the local file.
         local_checksum = checksum(source_full)

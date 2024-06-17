@@ -289,6 +289,13 @@ class ActionModule(ActionBase):
             # remote_file exists so continue to next iteration.
             return None
 
+        result["diff"].append(
+            {
+                "before": {"path": dest_status["path"], "mode": dest_status["mode"]},
+                "after": {"path": dest_status["path"], "mode": self._task.args["mode"]},
+            }
+        )
+
         # Generate a hash of the local file.
         local_checksum = checksum(source_full)
 
@@ -400,6 +407,10 @@ class ActionModule(ActionBase):
         if not module_return.get("checksum"):
             module_return["checksum"] = local_checksum
 
+        # the diff is already prepared before either module is executed
+        # don't overwrite the diff
+        if "diff" in module_return:
+            del module_return["diff"]
         result.update(module_return)
         return result
 

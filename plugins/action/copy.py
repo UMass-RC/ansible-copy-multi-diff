@@ -419,7 +419,7 @@ class ActionModule(ActionBase):
 
             # Execute the file module.
             module_return = self._execute_module(
-                module_name="ansible.legacy.file", module_args=new_module_args, task_vars=task_vars
+                module_name="unity.file_multi_diff.file", module_args=new_module_args, task_vars=task_vars
             )
 
         if not module_return.get("checksum"):
@@ -607,7 +607,7 @@ class ActionModule(ActionBase):
             del new_module_args["src"]
 
             module_return = self._execute_module(
-                module_name="ansible.legacy.file", module_args=new_module_args, task_vars=task_vars
+                module_name="unity.file_multi_diff.file", module_args=new_module_args, task_vars=task_vars
             )
 
             if module_return.get("failed"):
@@ -639,7 +639,7 @@ class ActionModule(ActionBase):
                 new_module_args.pop("mode")
 
             module_return = self._execute_module(
-                module_name="ansible.legacy.file", module_args=new_module_args, task_vars=task_vars
+                module_name="unity.file_multi_diff.file", module_args=new_module_args, task_vars=task_vars
             )
             module_executed = True
 

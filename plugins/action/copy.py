@@ -301,7 +301,10 @@ class ActionModule(ActionBase):
             # _execute_remote_stat sets checksum equal to 1 when path does not exist
         if "mode" in self._task.args:
             attributes_diff["before"]["mode"] = dest_status["mode"]
-            attributes_diff["after"]["mode"] = self._task.args["mode"]
+            if lmode:
+                attributes_diff["after"]["mode"] = lmode
+            else:
+                attributes_diff["after"]["mode"] = self._task.args["mode"]
         if "owner" in self._task.args:
             attributes_diff["before"]["owner"] = dest_status["pw_name"]
             attributes_diff["after"]["owner"] = self._task.args["owner"]

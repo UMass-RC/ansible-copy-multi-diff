@@ -321,9 +321,9 @@ class ActionModule(ActionBase):
             # The checksums don't match and we will change or error out.
 
             if self._task.diff and not raw:
-                result["diff"].append(
-                    self._get_diff_data(dest_file, source_full, task_vars, content)
-                )
+                data_diff = self._get_diff_data(dest_file, source_full, task_vars, content)
+                if data_diff["before"] != data_diff["after"]:
+                    result["diff"].append(data_diff)
 
             if self._task.check_mode:
                 self._remove_tempfile_if_content_defined(content, content_tempfile)

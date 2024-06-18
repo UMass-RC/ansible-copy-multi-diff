@@ -290,8 +290,8 @@ class ActionModule(ActionBase):
             return None
 
         attributes_diff = {
-            "before": {"path": dest_status["path"]},
-            "after": {"path": dest_status["path"]},
+            "before": {"path": dest_file},
+            "after": {"path": dest_file},
         }
         if not dest_status["exists"]:
             dest_status["mode"] = None

@@ -311,7 +311,8 @@ class ActionModule(ActionBase):
         if "group" in self._task.args:
             attributes_diff["before"]["group"] = dest_status["gr_name"]
             attributes_diff["after"]["group"] = self._task.args["group"]
-        result["diff"].append(attributes_diff)
+        if attributes_diff["before"] != attributes_diff["after"]:
+            result["diff"].append(attributes_diff)
 
         # Generate a hash of the local file.
         local_checksum = checksum(source_full)

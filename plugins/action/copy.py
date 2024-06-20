@@ -368,7 +368,7 @@ class ActionModule(ActionBase):
             if lmode:
                 new_module_args['mode'] = lmode
 
-            module_return = self._execute_module(module_name='ansible.legacy.copy', module_args=new_module_args, task_vars=task_vars)
+            module_return = self._execute_module(module_name='unity.copy_multi_diff.copy', module_args=new_module_args, task_vars=task_vars)
 
         else:
             # no need to transfer the file, already correct hash, but still need to call
@@ -407,7 +407,7 @@ class ActionModule(ActionBase):
                 new_module_args['mode'] = lmode
 
             # Execute the file module.
-            module_return = self._execute_module(module_name='ansible.legacy.file', module_args=new_module_args, task_vars=task_vars)
+            module_return = self._execute_module(module_name='unity.file_multi_diff.file', module_args=new_module_args, task_vars=task_vars)
 
         if not module_return.get('checksum'):
             module_return['checksum'] = local_checksum
@@ -488,7 +488,7 @@ class ActionModule(ActionBase):
         # if we have first_available_file in our vars
         # look up the files and use the first one we find as src
         elif remote_src:
-            result.update(self._execute_module(module_name='ansible.legacy.copy', task_vars=task_vars))
+            result.update(self._execute_module(module_name='unity.copy_multi_diff.copy', task_vars=task_vars))
             return self._ensure_invocation(result)
         else:
             # find_needle returns a path that may not have a trailing slash on
@@ -586,7 +586,7 @@ class ActionModule(ActionBase):
             new_module_args['recurse'] = False
             del new_module_args['src']
 
-            module_return = self._execute_module(module_name='ansible.legacy.file', module_args=new_module_args, task_vars=task_vars)
+            module_return = self._execute_module(module_name='unity.file_multi_diff.file', module_args=new_module_args, task_vars=task_vars)
 
             if module_return.get('failed'):
                 result.update(module_return)
@@ -612,7 +612,7 @@ class ActionModule(ActionBase):
             if new_module_args.get('mode', None) == 'preserve':
                 new_module_args.pop('mode')
 
-            module_return = self._execute_module(module_name='ansible.legacy.file', module_args=new_module_args, task_vars=task_vars)
+            module_return = self._execute_module(module_name='unity.file_multi_diff.file', module_args=new_module_args, task_vars=task_vars)
             module_executed = True
 
             if module_return.get('failed'):

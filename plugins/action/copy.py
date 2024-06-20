@@ -567,7 +567,7 @@ class ActionModule(ActionBase):
 
             module_executed = True
             changed = changed or module_return.get('changed', False)
-            if isinstance(list, module_return["diff"]):
+            if isinstance(module_return["diff"], list):
                 result["diff"] += module_return["diff"]
             else:
                 result["diff"].append(module_return["diff"])

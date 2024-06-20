@@ -277,6 +277,31 @@ class ActionModule(ActionBase):
             # remote_file exists so continue to next iteration.
             return None
 
+        attributes_diff = {
+            "before": {"path": dest_file},
+            "after": {"path": dest_file},
+        }
+        if not dest_status["exists"]:
+            dest_status["mode"] = None
+            dest_status["pw_name"] = None
+            dest_status["gr_name"] = None
+            # dest_status["checksum"] = 1
+            # _execute_remote_stat sets checksum equal to 1 when path does not exist
+        if "mode" in self._task.args:
+            attributes_diff["before"]["mode"] = dest_status["mode"]
+            if lmode:
+                attributes_diff["after"]["mode"] = lmode
+            else:
+                attributes_diff["after"]["mode"] = self._task.args["mode"]
+        if "owner" in self._task.args:
+            attributes_diff["before"]["owner"] = dest_status["pw_name"]
+            attributes_diff["after"]["owner"] = self._task.args["owner"]
+        if "group" in self._task.args:
+            attributes_diff["before"]["group"] = dest_status["gr_name"]
+            attributes_diff["after"]["group"] = self._task.args["group"]
+        if attributes_diff["before"] != attributes_diff["after"]:
+            result["diff"].append(attributes_diff)
+
         # Generate a hash of the local file.
         local_checksum = checksum(source_full)
 
@@ -284,7 +309,9 @@ class ActionModule(ActionBase):
             # The checksums don't match and we will change or error out.
 
             if self._task.diff and not raw:
-                result['diff'].append(self._get_diff_data(dest_file, source_full, task_vars, content))
+                data_diff = self._get_diff_data(dest_file, source_full, task_vars, content)
+                if data_diff["before"] != data_diff["after"]:
+                    result["diff"].append(data_diff)
 
             if self._task.check_mode:
                 self._remove_tempfile_if_content_defined(content, content_tempfile)
@@ -385,6 +412,10 @@ class ActionModule(ActionBase):
         if not module_return.get('checksum'):
             module_return['checksum'] = local_checksum
 
+        # the diff is already prepared before either module is executed
+        # don't overwrite the diff
+        if "diff" in module_return:
+            del module_return["diff"]
         result.update(module_return)
         return result
 
@@ -420,6 +451,7 @@ class ActionModule(ActionBase):
         remote_src = boolean(self._task.args.get('remote_src', False), strict=False)
         local_follow = boolean(self._task.args.get('local_follow', True), strict=False)
 
+        result["diff"] = []
         result['failed'] = True
         if not source and content is None:
             result['msg'] = 'src (or content) is required'
@@ -532,10 +564,13 @@ class ActionModule(ActionBase):
             for dir_component in paths:
                 os.path.join(dir_path, dir_component)
                 implicit_directories.add(dir_path)
-            if 'diff' in result and not result['diff']:
-                del result['diff']
+
             module_executed = True
             changed = changed or module_return.get('changed', False)
+            if isinstance(list, module_return["diff"]):
+                result["diff"] += module_return["diff"]
+            else:
+                result["diff"].append(module_return["diff"])
 
         for src, dest_path in source_files['directories']:
             # Find directories that are leaves as they might not have been
@@ -585,6 +620,10 @@ class ActionModule(ActionBase):
                 return self._ensure_invocation(result)
 
             changed = changed or module_return.get('changed', False)
+            if isinstance(list, module_return["diff"]):
+                result["diff"] += module_return["diff"]
+            else:
+                result["diff"].append(module_return["diff"])
 
         if module_executed and len(source_files['files']) == 1:
             result.update(module_return)
@@ -595,6 +634,9 @@ class ActionModule(ActionBase):
                 result['dest'] = result['path']
         else:
             result.update(dict(dest=dest, src=source, changed=changed))
+
+        if "diff" in result and not result["diff"]:
+            del result["diff"]
 
         # Delete tmp path
         self._remove_tmp_path(self._connection._shell.tmpdir)

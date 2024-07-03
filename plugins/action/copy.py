@@ -310,7 +310,7 @@ class ActionModule(ActionBase):
 
             if self._task.diff and not raw:
                 data_diff = self._get_diff_data(dest_file, source_full, task_vars, content)
-                if data_diff["before"] != data_diff["after"]:
+                if "src_larger" in data_diff or data_diff["before"] != data_diff["after"]:
                     result["diff"].append(data_diff)
 
             if self._task.check_mode:
@@ -368,7 +368,7 @@ class ActionModule(ActionBase):
             if lmode:
                 new_module_args['mode'] = lmode
 
-            module_return = self._execute_module(module_name='unity.copy_multi_diff.copy', module_args=new_module_args, task_vars=task_vars)
+            module_return = self._execute_module(module_name='ansible.legacy.copy', module_args=new_module_args, task_vars=task_vars)
 
         else:
             # no need to transfer the file, already correct hash, but still need to call
@@ -642,4 +642,3 @@ class ActionModule(ActionBase):
         self._remove_tmp_path(self._connection._shell.tmpdir)
 
         return self._ensure_invocation(result)
-

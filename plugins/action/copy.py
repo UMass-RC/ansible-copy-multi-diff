@@ -370,7 +370,7 @@ class ActionModule(ActionBase):
             if lmode:
                 new_module_args['mode'] = lmode
 
-            module_return = self._execute_module(module_name='unity.copy_multi_diff.copy', module_args=new_module_args, task_vars=task_vars)
+            module_return = self._execute_module(module_name='ansible.legacy.copy', module_args=new_module_args, task_vars=task_vars)
 
         else:
             # no need to transfer the file, already correct hash, but still need to call
@@ -490,7 +490,7 @@ class ActionModule(ActionBase):
         # if we have first_available_file in our vars
         # look up the files and use the first one we find as src
         elif remote_src:
-            result.update(self._execute_module(module_name='unity.copy_multi_diff.copy', task_vars=task_vars))
+            result.update(self._execute_module(module_name='ansible.legacy.copy', task_vars=task_vars))
             return self._ensure_invocation(result)
         else:
             # find_needle returns a path that may not have a trailing slash on
@@ -644,4 +644,3 @@ class ActionModule(ActionBase):
         self._remove_tmp_path(self._connection._shell.tmpdir)
 
         return self._ensure_invocation(result)
-

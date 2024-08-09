@@ -310,7 +310,9 @@ class ActionModule(ActionBase):
 
             if self._task.diff and not raw:
                 data_diff = self._get_diff_data(dest_file, source_full, task_vars, content)
-                if data_diff["before"] != data_diff["after"]:
+                if "before" in data_diff and "after" in data_diff and (data_diff["before"] == data_diff["after"]):
+                    pass
+                else:
                     result["diff"].append(data_diff)
 
             if self._task.check_mode:

@@ -310,6 +310,8 @@ class ActionModule(ActionBase):
 
             if self._task.diff and not raw:
                 data_diff = self._get_diff_data(dest_file, source_full, task_vars, content)
+                data_diff.setdefault("before_header", dest_file)
+                data_diff.setdefault("after_header", source_full)
                 if "before" in data_diff and "after" in data_diff and (data_diff["before"] == data_diff["after"]):
                     pass
                 else:
@@ -371,7 +373,6 @@ class ActionModule(ActionBase):
                 new_module_args['mode'] = lmode
 
             module_return = self._execute_module(module_name='ansible.legacy.copy', module_args=new_module_args, task_vars=task_vars)
-
         else:
             # no need to transfer the file, already correct hash, but still need to call
             # the file module in case we want to change attributes
